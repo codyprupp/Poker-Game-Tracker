@@ -1,15 +1,14 @@
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Scanner;
-import java.util.ArrayList;
 
 
 //TODO: add method headers and stuff
 public class PlayerDatabase {
     File databaseFile;
-    ArrayList<Player> database;
 
     public PlayerDatabase(String database)
     {
@@ -42,43 +41,58 @@ public class PlayerDatabase {
         return false;
     }
 
-    public void addPlayerToDatabase(String name) throws IOException
+    public String updateDatabase(Player[] players) throws IOException
     {
-        PrintWriter pw = new PrintWriter(new FileWriter(this.databaseFile, true));
-        Player p = new Player(name, 1, 5.0);
-        pw.println(p.toString());
-        pw.close();
-    }
+        //idea: read through the entire file and compare player names to the strings in the file
+        FileWriter fw = null;
+        String oldContent = "";
+        int count = 0;
 
-    public void updateDatabase()
-    {
-        //idea: read through the entire file and compare player values to the strings in the file
-        Scanner s = new Scanner(this.databaseFile);
-
-        while (s.hasNextLine())
+        for (Player p : players)
         {
-            // make a new Player with the data in the 
+            //if the player is already in the file, update the file's current values
+            BufferedReader br = new BufferedReader(new FileReader(this.databaseFile));
+            String line = br.readLine();
+            boolean playerAdded = false;
+
+            //based on the number of times a person has been updated, start at a new line
+            for (int i = 0; i < count; i++)
+            {
+                line = br.readLine();
+            }
+
+            while (line != null)
+            {
+                if (line.contains(p.username))
+                {
+                    //update the file's current values
+                    p.numBuyIns += Integer.parseInt(line.substring(line.indexOf(":") + 2, line.indexOf(" ", line.indexOf(":") + 2)));
+                    p.currMoney += Double.parseDouble(line.substring(line.indexOf("$") + 1, line.indexOf(" ", line.indexOf("$") + 1)));
+                    oldContent += p.toString() + System.lineSeparator();
+                    count++;
+                    playerAdded = true;
+                    break;
+                }
+                else
+                {
+                    oldContent += line + System.lineSeparator();
+                }
+                
+                line = br.readLine();
+            }
+            //if I reached the end of the database and nothing was updated (player was not in database), add the player to the database
+            if (!playerAdded)
+            {
+                oldContent += p.toString() + System.lineSeparator();
+            }
+
+            br.close();
         }
+
+        fw = new FileWriter(this.databaseFile);
+        fw.write(oldContent);
+        fw.close();
+
+        return "Database updated!";
     }
-
-    public void updatePlayerMoney(String name, double amount) throws IOException
-    {
-        //TODO: make use of the Player class, not just a string
-        //for now, just assume the player is contained, but will need to add a print statement for player not found
-        Scanner s = new Scanner(this.databaseFile);
-        String oldString = "";
-
-        while(s.hasNextLine())
-        {
-            oldString += s.nextLine();
-        }
-        s.close();
-
-        // String newString = oldString.substring(0, oldString.indexOf(name)) + name + ": " + ;
-        
-        PrintWriter pw = new PrintWriter(new FileWriter(this.databaseFile, true));        
-    }
-    //idea: make one method to update all the values of the database
-
-    //TODO: make a method for retrieving values from players in the database, and clearing the database
 }

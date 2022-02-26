@@ -6,40 +6,16 @@ public class PokerGame
     PlayerDatabase database = new PlayerDatabase("PlayerDatabase.txt");
     public static void main(String[] args) throws IOException
     {
-        PokerGame p = new PokerGame();
+        PokerGame pg = new PokerGame();
 
-        if (args[0].equals("start"))
-        //TODO: add a print statement that there must at least one argument for starting the game
-        {
-            String[] players = new String[args.length - 1];
+        Player[] players = new Player[args.length / 3];
 
-            for (int i = 1; i < args.length; i++)
-            {
-                players[i - 1] = args[i];
-            }
-            
-            p.startGame(players);
-        }
-        else if (args[0].equals("add")) //this command name kinda sucks, might wanna change it later
+        for (int i = 0; i < args.length; i += 3)
         {
-            
+            players[i / 3] = new Player(args[i], Integer.parseInt(args[i + 1]), Double.parseDouble(args[i + 2]));
         }
-    }
 
-    public void startGame(String[] players) throws IOException
-    {
-        for (String player : players)
-        {
-            //if player is already in database, use their values
-            if (this.database.contains(player))
-            {
-                //TODO
-                //buy the player in
-            }
-            else // create a new player and initialize their values, adding them to the database
-            {
-                this.database.addPlayerToDatabase(player);
-            }
-        }
+        // NOTE: player names cannot have any special characters in them bc they will mess with the updateDatabase method
+        System.out.println(pg.database.updateDatabase(players));
     }
 }
