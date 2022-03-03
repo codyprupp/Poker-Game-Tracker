@@ -1,98 +1,88 @@
-import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Scanner;
+import java.util.ArrayList;
 
 
 //TODO: add method headers and stuff
 public class PlayerDatabase {
     File databaseFile;
+    ArrayList<Player> database;
 
     public PlayerDatabase(String database)
     {
         this.databaseFile = new File(database);
     }
 
-    /**
-     * Searches the database for a player, and returns whether or not 
-     * the player exists in the database.
-     * 
-     * @param player The player to check if contained in the database
-     * @return True if the player is contained, false otherwise
-     * @throws IOException
-     */
-    public boolean contains(String player) throws IOException
+    public void updateDatabase(Player[] players) throws IOException
     {
+        for (Player newPlayer : players)
+        {
+            File newFile = new File("temp.txt");
+            PrintWriter pw = new PrintWriter(new BufferedWriter(new FileWriter(newFile, true)));
+            Scanner s = new Scanner(this.databaseFile);
+            boolean playerFound = false;
+
+            while(s.hasNextLine())
+            {
+                String playerData = s.nextLine();
+                if (playerData.substring(0, playerData.indexOf(":")).equals(newPlayer.username))
+                {
+                    int playerDataBuyIns = Integer.parseInt(playerData.substring(playerData.indexOf(":") + 2, playerData.indexOf(" ", playerData.indexOf(":") + 2)));
+                    double playerDataBank = Double.parseDouble(playerData.substring(playerData.indexOf("$") + 1, playerData.indexOf(" ", playerData.indexOf("$"))));
+                    Player replacement = new Player(newPlayer.username, newPlayer.numBuyIns + playerDataBuyIns, newPlayer.currMoney + playerDataBank);
+                    pw.println(replacement.toString());
+                    playerFound = true;
+                }
+                else
+                {
+                    pw.println(playerData);
+                }
+            }
+
+            if (!playerFound)
+            {
+                pw.println(newPlayer.toString());
+            }
+
+            s.close();
+            pw.flush();
+            pw.close();
+            this.databaseFile.delete();
+            File dump = new File("PlayerDatabase.txt");
+            newFile.renameTo(dump);
+        }
+    }
+
+    public String winsAndLosses() throws FileNotFoundException
+    {
+        String winsAndLosses = "";
+
         Scanner s = new Scanner(this.databaseFile);
-        String line;
+
         while (s.hasNextLine())
         {
-            line = s.nextLine();
-            if (line.substring(0, line.indexOf(":")).equals(player))
+            String playerData = s.nextLine();
+            String playerName = playerData.substring(0, playerData.indexOf(":"));
+            int playerBuyIns = Integer.parseInt(playerData.substring(playerData.indexOf(":") + 2, playerData.indexOf(" ", playerData.indexOf(":") + 2)));
+            double playerBank = Double.parseDouble(playerData.substring(playerData.indexOf("$") + 1, playerData.indexOf(" ", playerData.indexOf("$"))));
+            double playerNetWorth = playerBank - (playerBuyIns * 5);
+
+            if (playerNetWorth >= 0)
             {
-                s.close();
-                return true;
+                winsAndLosses += playerName + " is up $" + playerNetWorth + " so far\n";
+            }
+            else
+            {
+                winsAndLosses += playerName + " is down $" + (playerNetWorth * -1) + " so far\n";
             }
         }
 
         s.close();
-        return false;
-    }
-
-    public String updateDatabase(Player[] players) throws IOException
-    {
-        //idea: read through the entire file and compare player names to the strings in the file
-        FileWriter fw = null;
-        String oldContent = "";
-        int count = 0;
-
-        for (Player p : players)
-        {
-            //if the player is already in the file, update the file's current values
-            BufferedReader br = new BufferedReader(new FileReader(this.databaseFile));
-            String line = br.readLine();
-            boolean playerAdded = false;
-
-            //based on the number of times a person has been updated, start at a new line
-            for (int i = 0; i < count; i++)
-            {
-                line = br.readLine();
-            }
-
-            while (line != null)
-            {
-                if (line.contains(p.username))
-                {
-                    //update the file's current values
-                    p.numBuyIns += Integer.parseInt(line.substring(line.indexOf(":") + 2, line.indexOf(" ", line.indexOf(":") + 2)));
-                    p.currMoney += Double.parseDouble(line.substring(line.indexOf("$") + 1, line.indexOf(" ", line.indexOf("$") + 1)));
-                    oldContent += p.toString() + System.lineSeparator();
-                    count++;
-                    playerAdded = true;
-                    break;
-                }
-                else
-                {
-                    oldContent += line + System.lineSeparator();
-                }
-                
-                line = br.readLine();
-            }
-            //if I reached the end of the database and nothing was updated (player was not in database), add the player to the database
-            if (!playerAdded)
-            {
-                oldContent += p.toString() + System.lineSeparator();
-            }
-
-            br.close();
-        }
-
-        fw = new FileWriter(this.databaseFile);
-        fw.write(oldContent);
-        fw.close();
-
-        return "Database updated!";
+        return winsAndLosses;
     }
 }

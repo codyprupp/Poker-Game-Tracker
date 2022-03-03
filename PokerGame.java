@@ -15,7 +15,23 @@ public class PokerGame
             players[i / 3] = new Player(args[i], Integer.parseInt(args[i + 1]), Double.parseDouble(args[i + 2]));
         }
 
+        pg.database.updateDatabase(players);
+        System.out.println(pg.database.winsAndLosses());
+
         // NOTE: player names cannot have any special characters in them bc they will mess with the updateDatabase method
-        System.out.println(pg.database.updateDatabase(players));
+        // System.out.println(pg.database.updateDatabase(players));
     }
+
+    // public Player[] startGame(String[] players) throws IOException
+    // {
+    //     //TODO
+    //     Player[] toReturn = new Player[players.length];
+
+    //     for (Player p : toReturn)
+    //     {
+    //         this.database.updateDatabase(p);
+    //     }
+
+    //     return toReturn;
+    // }
 }

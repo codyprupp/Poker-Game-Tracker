@@ -1,6 +1,4 @@
-Cody: 1 buy ins, $5.0 current bank
-Jason: 1 buy ins, $5.0 current bank
-Tarun: 1 buy ins, $5.0 current bank
-Param: 1 buy ins, $5.0 current bank
-Owen: 1 buy ins, $5.0 current bank
-Andy: 1 buy ins, $5.0 current bank
+Cody: 1 buy ins, $2.75 current bank
+Jason: 1 buy ins, $0.0 current bank
+Matthew: 1 buy ins, $10.15 current bank
+Andrew: 4 buy ins, $22.10 current bank
